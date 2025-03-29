@@ -1,6 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:mylist2/data/models/category.dart';
+import 'package:mylist2/data/models/checklist_item.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -44,10 +45,26 @@ class DatabaseHelper {
         title TEXT NOT NULL,
         content TEXT,
         category_id INTEGER,
+        note_type TEXT NOT NULL DEFAULT 'text',
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
         FOREIGN KEY (category_id) REFERENCES categories (id)
           ON DELETE SET NULL
+      )
+    ''');
+
+    // Create checklist_items table
+    await db.execute('''
+      CREATE TABLE checklist_items(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        note_id INTEGER NOT NULL,
+        text TEXT NOT NULL,
+        is_checked INTEGER NOT NULL DEFAULT 0,
+        position INTEGER NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        FOREIGN KEY (note_id) REFERENCES notes (id)
+          ON DELETE CASCADE
       )
     ''');
 
@@ -112,6 +129,65 @@ class DatabaseHelper {
       'categories',
       where: 'id = ?',
       whereArgs: [id],
+    );
+  }
+
+  // Checklist CRUD operations
+  Future<int> insertChecklistItem(ChecklistItem item) async {
+    final db = await database;
+    return await db.insert('checklist_items', item.toMap());
+  }
+
+  Future<List<ChecklistItem>> getChecklistItemsByNoteId(int noteId) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'checklist_items',
+      where: 'note_id = ?',
+      whereArgs: [noteId],
+      orderBy: 'position ASC',
+    );
+    return List.generate(maps.length, (i) => ChecklistItem.fromMap(maps[i]));
+  }
+
+  Future<int> updateChecklistItem(ChecklistItem item) async {
+    final db = await database;
+    return await db.update(
+      'checklist_items',
+      item.toMap(),
+      where: 'id = ?',
+      whereArgs: [item.id],
+    );
+  }
+
+  Future<int> deleteChecklistItem(int id) async {
+    final db = await database;
+    return await db.delete(
+      'checklist_items',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<void> reorderChecklistItems(int noteId, List<int> itemIds) async {
+    final db = await database;
+    await db.transaction((txn) async {
+      for (int i = 0; i < itemIds.length; i++) {
+        await txn.update(
+          'checklist_items',
+          {'position': i},
+          where: 'id = ?',
+          whereArgs: [itemIds[i]],
+        );
+      }
+    });
+  }
+
+  Future<void> deleteChecklistItemsByNoteId(int noteId) async {
+    final db = await database;
+    await db.delete(
+      'checklist_items',
+      where: 'note_id = ?',
+      whereArgs: [noteId],
     );
   }
 } 

@@ -78,4 +78,24 @@ This document tracks new learnings and insights gained during the development of
 - Social Sharing
   - WhatsApp integration using share_plus package
   - Cross-platform sharing capabilities
-  - Content formatting for sharing 
+  - Content formatting for sharing
+
+## Voice Commands in Flutter
+- Speech recognition can be used for both dictation and command processing
+- Commands can be processed by checking for specific phrases in the recognized text
+- Visual feedback is important for voice interactions (confidence indicators, status messages)
+- Continuous mode vs. single recognition mode offers different user experiences
+- Voice commands can be used to control UI state and perform actions
+
+## Checklist Management
+- Checklist items should be immutable for proper state management
+- Position tracking helps with reordering and maintaining order
+- Timestamps are important for tracking changes and syncing
+- Swipe-to-delete provides a natural gesture for item removal
+- Text selection and cursor position management improves text input UX 
+
+## Dart Language Insights
+- Const constructors cannot use runtime values like DateTime.now()
+- Use const constructors only when all values are known at compile time
+- For models with runtime values, use regular constructors
+- Immutability can still be achieved without const by using final fields 

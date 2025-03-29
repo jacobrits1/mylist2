@@ -33,6 +33,20 @@ All notable changes to this project will be documented in this file.
   - Category dialog for adding/editing categories
   - Visual feedback for category operations
   - Default categories (Personal, Work, Shopping, Ideas)
+- Voice commands for note type selection and management
+  - Switch between text and checklist modes
+  - Add, remove, and check/uncheck checklist items
+  - Change categories using voice
+- Enhanced UI for note editing
+  - Note type toggle in app bar
+  - Voice command help dialog
+  - Visual feedback for voice commands
+  - Confidence indicator for speech recognition
+- Improved checklist functionality
+  - Persistent checklist states
+  - Position tracking for reordering
+  - Swipe-to-delete functionality
+  - Proper cursor position management
 
 ### Enhanced
 - Improved speech recognition:
@@ -51,4 +65,8 @@ All notable changes to this project will be documented in this file.
   - Multi-select filter options
 
 ### Fixed
-- Updated speech_to_text package to version ^7.0.0 for compatibility with Flutter 3.29.2 
+- Updated speech_to_text package to version ^7.0.0 for compatibility with Flutter 3.29.2
+- Fixed ChecklistItem constructor to properly handle runtime DateTime values
+
+### Removed
+- Removed unused code and dependencies 
