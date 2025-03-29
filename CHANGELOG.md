@@ -25,6 +25,14 @@ All notable changes to this project will be documented in this file.
   - Checklist support with dynamic items
   - Category assignment
   - Save and delete functionality
+- Category Management:
+  - Create, edit, and delete categories
+  - SQLite database integration for category persistence
+  - Category-based note filtering
+  - Category BLoC for state management
+  - Category dialog for adding/editing categories
+  - Visual feedback for category operations
+  - Default categories (Personal, Work, Shopping, Ideas)
 
 ### Enhanced
 - Improved speech recognition:
