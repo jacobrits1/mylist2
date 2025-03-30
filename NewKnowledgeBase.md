@@ -276,3 +276,114 @@ lib/
 - Clean and maintainable folder structure
 - Modular component design
 - Consistent naming conventions 
+
+## SQLite Database Implementation
+### Database Schema
+The application uses SQLite for persistent storage with the following tables:
+
+1. **Notes Table**
+   ```sql
+   CREATE TABLE notes(
+     id INTEGER PRIMARY KEY AUTOINCREMENT,
+     title TEXT NOT NULL,
+     content TEXT,
+     category_id INTEGER,
+     note_type TEXT NOT NULL DEFAULT 'text',
+     created_at TEXT NOT NULL,
+     updated_at TEXT NOT NULL,
+     due_date TEXT,
+     FOREIGN KEY (category_id) REFERENCES categories (id)
+       ON DELETE SET NULL
+   )
+   ```
+
+2. **Categories Table**
+   ```sql
+   CREATE TABLE categories(
+     id INTEGER PRIMARY KEY AUTOINCREMENT,
+     name TEXT NOT NULL,
+     description TEXT,
+     created_at TEXT NOT NULL,
+     updated_at TEXT NOT NULL
+   )
+   ```
+
+3. **Checklist Items Table**
+   ```sql
+   CREATE TABLE checklist_items(
+     id INTEGER PRIMARY KEY AUTOINCREMENT,
+     note_id INTEGER NOT NULL,
+     text TEXT NOT NULL,
+     is_checked INTEGER NOT NULL DEFAULT 0,
+     position INTEGER NOT NULL,
+     created_at TEXT NOT NULL,
+     updated_at TEXT NOT NULL,
+     FOREIGN KEY (note_id) REFERENCES notes (id)
+       ON DELETE CASCADE
+   )
+   ```
+
+4. **Reminders Table**
+   ```sql
+   CREATE TABLE reminders(
+     id INTEGER PRIMARY KEY AUTOINCREMENT,
+     noteId INTEGER NOT NULL,
+     title TEXT NOT NULL,
+     description TEXT,
+     reminderTime TEXT NOT NULL,
+     isCompleted INTEGER DEFAULT 0,
+     FOREIGN KEY (noteId) REFERENCES notes(id) ON DELETE CASCADE
+   )
+   ```
+
+### Model Classes
+- Each database table has a corresponding model class (Note, Category, ChecklistItem, ReminderModel)
+- Models follow immutability principles with copyWith methods
+- Proper serialization/deserialization methods (toMap/fromMap)
+- Appropriate data validation and type safety
+
+### Repository Pattern
+- Each model has a dedicated repository class for CRUD operations
+- Clean separation of database logic from business logic
+- Repositories handle specific query operations:
+  - Filtering by category
+  - Text search capabilities
+  - Date-based queries
+  - Type-specific queries
+
+### Foreign Key Relationships
+- Categories can have many notes (one-to-many)
+- Notes can have many checklist items (one-to-many)
+- Notes can have many reminders (one-to-many)
+- ON DELETE CASCADE ensures data integrity
+  - When a note is deleted, its checklist items and reminders are also deleted
+  - When a category is deleted, associated notes are preserved (category set to null) 
+
+## Sharing Notes via WhatsApp
+### Implementation
+- Used share_plus package for cross-platform sharing capabilities
+- Created a dedicated ShareService with the following features:
+  - Content formatting for different note types (text vs checklist)
+  - WhatsApp-specific sharing method
+  - Generic sharing method for other apps
+  - Error handling and user feedback
+
+### Share Content Formatting
+- Title formatted with underline for clarity
+- Checklist items rendered with checkboxes (✓/☐)
+- Text formatting with proper line breaks
+- Custom footer attribution
+
+### Share UI/UX Implementation
+- Share button in the note editor app bar
+- Bottom sheet dialog with sharing options
+- WhatsApp-specific option with icon
+- General sharing option for other apps
+- Visual feedback after sharing
+
+### Best Practices
+- Proper error handling for share operations
+- Graceful degradation when WhatsApp isn't installed
+- Consistent sharing format across platforms
+- Share position context for proper UI placement
+- State preservation during sharing operations 

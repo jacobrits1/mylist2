@@ -3,6 +3,7 @@ import '../../data/sources/local/database_helper.dart';
 import '../../data/repositories/category_repository.dart';
 import '../../data/repositories/reminder_repository.dart';
 import '../../services/notification_service.dart';
+import '../../services/share_service.dart';
 import '../../presentation/blocs/category/category_bloc.dart';
 import '../../presentation/bloc/reminder_bloc.dart';
 
@@ -23,6 +24,7 @@ Future<void> setupDependencies() async {
   final notificationService = NotificationService();
   await notificationService.initialize();
   getIt.registerSingleton(notificationService);
+  getIt.registerLazySingleton(() => ShareService());
 
   // Blocs
   getIt.registerFactory(() => CategoryBloc(categoryRepository: getIt()));

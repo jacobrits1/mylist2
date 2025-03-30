@@ -3,6 +3,9 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:mylist2/data/models/checklist_item.dart';
 import '../../bloc/reminder_bloc.dart';
 import '../../../data/models/reminder_model.dart';
+import '../../../data/models/note.dart';
+import '../../../services/share_service.dart';
+import '../../../core/di/dependency_injection.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -372,6 +375,14 @@ class _NoteEditPageState extends State<NoteEditPage> {
               },
               tooltip: _noteType == 'checklist' ? 'Switch to text note' : 'Switch to checklist',
             ),
+            // Share button with WhatsApp option
+            IconButton(
+              icon: const Icon(Icons.share),
+              tooltip: 'Share note',
+              onPressed: () {
+                _showShareOptions(context);
+              },
+            ),
             // Voice dictation toggle
             IconButton(
               icon: Icon(
@@ -661,6 +672,54 @@ class _NoteEditPageState extends State<NoteEditPage> {
         value: _confidence,
         backgroundColor: Colors.grey.withOpacity(0.3),
         strokeWidth: 2,
+      ),
+    );
+  }
+
+  // Share options dialog
+  void _showShareOptions(BuildContext context) {
+    final shareService = getIt<ShareService>();
+    
+    // Create a Note object from the current state
+    final note = Note(
+      title: _titleController.text.isEmpty ? 'Untitled Note' : _titleController.text,
+      content: _contentController.text,
+      categoryId: _categories.indexOf(_selectedCategory) + 1, // Assuming categories start from ID 1
+      noteType: _noteType,
+      dueDate: _dueDate,
+    );
+    
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: const Text('Share options'),
+              tileColor: Theme.of(context).colorScheme.primaryContainer,
+            ),
+            ListTile(
+              leading: const Icon(Icons.message, color: Color(0xFF25D366)), // WhatsApp green color
+              title: const Text('Share via WhatsApp'),
+              onTap: () {
+                Navigator.pop(context);
+                shareService.shareNoteViaWhatsApp(context, note, _checklistItems);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.share),
+              title: const Text('Share via other apps'),
+              onTap: () {
+                Navigator.pop(context);
+                shareService.shareNote(context, note, _checklistItems);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

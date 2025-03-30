@@ -6,7 +6,15 @@ A modern todo list mobile application built with Flutter 3.29.2
 
 - Modern and responsive UI using Material 3 Design
 - Clean Architecture with BLoC pattern
-- Local data persistence
+- Local data persistence with SQLite
+  - Notes with text and checklist support
+  - Categories for organization
+  - Reminders with local notifications
+- Voice commands and dictation
+- Social Sharing
+  - WhatsApp integration
+  - Cross-platform sharing capabilities
+  - Formatted note sharing
 - Smooth animations and transitions
 - Cross-platform support (Android/iOS)
 
@@ -84,3 +92,18 @@ lib/
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Data Storage
+
+MyList2 uses SQLite for persistent local storage with the following features:
+
+- **Notes**: Store text notes and checklists with titles, content, categories, and due dates
+- **Categories**: Organize notes with customizable categories
+- **Checklists**: Create and manage checklist items within notes
+- **Reminders**: Set and manage reminders for notes with local notifications
+
+The database schema follows best practices:
+- Proper foreign key relationships
+- Cascade deletion where appropriate
+- Timestamps for tracking changes
+- Query optimization for filtering and searching
