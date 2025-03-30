@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import '../models/note.dart';
+import '../models/checklist_item.dart';
 import '../sources/local/database_helper.dart';
 
 /// Repository class for managing notes in the database
@@ -69,6 +70,42 @@ class NoteRepository {
       where: 'id = ?',
       whereArgs: [id],
     );
+  }
+
+  /// Get checklist items for a note
+  Future<List<ChecklistItem>> getChecklistItemsByNoteId(int noteId) async {
+    return await _databaseHelper.getChecklistItemsByNoteId(noteId);
+  }
+
+  /// Save checklist items for a note
+  /// This will replace all existing items for the note
+  Future<void> saveChecklistItems(int noteId, List<ChecklistItem> items) async {
+    final db = await _databaseHelper.database;
+    
+    // Use a transaction for atomicity
+    await db.transaction((txn) async {
+      // Delete existing items
+      await txn.delete(
+        'checklist_items',
+        where: 'note_id = ?',
+        whereArgs: [noteId],
+      );
+      
+      // Insert new items
+      for (var i = 0; i < items.length; i++) {
+        final item = items[i].copyWith(
+          noteId: noteId,
+          position: i,
+          updatedAt: DateTime.now(),
+        );
+        
+        await txn.insert(
+          'checklist_items',
+          item.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }
+    });
   }
 
   /// Search notes by title or content

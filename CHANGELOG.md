@@ -69,6 +69,15 @@ All notable changes to this project will be documented in this file.
   - Implemented proper text formatting for notes and checklists
   - Added bottom sheet dialog for sharing options
   - Added share button to the note edit screen
+- Note Editing and Autosave functionality:
+  - Created NoteBloc for state management of notes
+  - Added ability to reopen and edit existing notes
+  - Implemented autosave when exiting the edit screen
+  - Added dirty state tracking to detect changes
+  - Enhanced NoteRepository with support for checklist items
+  - Improved note list to display actual note data
+  - Added navigation between note list and edit screens
+  - Integrated proper state updates when returning to the list
 
 ### Enhanced
 - Improved speech recognition:
@@ -89,6 +98,10 @@ All notable changes to this project will be documented in this file.
   - Added more robust foreign key constraints
   - Enhanced model classes with immutability principles
   - Improved repository pattern implementation
+- Improved navigation flow:
+  - Added route parameter support for note editing
+  - Enhanced state management during navigation
+  - Added auto-refresh of lists after note operations
 
 ### Fixed
 - Updated speech_to_text package to version ^7.0.0 for compatibility with Flutter 3.29.2
@@ -110,3 +123,4 @@ All notable changes to this project will be documented in this file.
 - Optimized reminder database schema
 - Enhanced notification scheduling system
 - Improved reminder state management 
+- Updated note edit workflow with automatic saving instead of confirmation dialog 

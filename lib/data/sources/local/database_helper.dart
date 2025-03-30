@@ -22,9 +22,34 @@ class DatabaseHelper {
     String path = join(await getDatabasesPath(), 'mylist2.db');
     return await openDatabase(
       path,
-      version: 1,
+      version: 3,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      var tableInfo = await db.rawQuery("PRAGMA table_info(notes)");
+      bool hasNoteTypeColumn = tableInfo.any((column) => column['name'] == 'note_type');
+      
+      if (!hasNoteTypeColumn) {
+        await db.execute('''
+          ALTER TABLE notes ADD COLUMN note_type TEXT NOT NULL DEFAULT 'text'
+        ''');
+      }
+    }
+    
+    if (oldVersion < 3) {
+      var tableInfo = await db.rawQuery("PRAGMA table_info(notes)");
+      bool hasDueDateColumn = tableInfo.any((column) => column['name'] == 'due_date');
+      
+      if (!hasDueDateColumn) {
+        await db.execute('''
+          ALTER TABLE notes ADD COLUMN due_date TEXT
+        ''');
+      }
+    }
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -93,6 +118,14 @@ class DatabaseHelper {
       name: 'Ideas',
       description: 'Ideas and inspirations',
     ).toMap());
+  }
+
+  // For development only - delete and recreate the database
+  Future<void> resetDatabase() async {
+    String path = join(await getDatabasesPath(), 'mylist2.db');
+    await deleteDatabase(path);
+    _database = null; // Force reinitialization
+    await database; // Recreate database
   }
 
   // Category CRUD operations

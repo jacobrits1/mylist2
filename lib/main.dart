@@ -9,6 +9,8 @@ import 'package:mylist2/core/di/dependency_injection.dart';
 import 'package:mylist2/presentation/blocs/category/category_bloc.dart';
 import 'package:mylist2/presentation/blocs/category/category_event.dart';
 import 'package:mylist2/presentation/bloc/reminder_bloc.dart';
+import 'package:mylist2/presentation/bloc/note_bloc.dart';
+import 'package:mylist2/data/sources/local/database_helper.dart';
 
 void main() async {
   // Ensure Flutter bindings are initialized
@@ -16,6 +18,11 @@ void main() async {
   
   // Initialize dependencies
   await setupDependencies();
+  
+  // DEVELOPMENT ONLY: Reset database if needed
+  // Uncomment the line below to reset the database when schema changes
+  // This will delete all data and recreate the database
+  await GetIt.I<DatabaseHelper>().resetDatabase();
   
   runApp(const MyApp());
 }
@@ -32,6 +39,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => GetIt.I<ReminderBloc>(),
+        ),
+        BlocProvider(
+          create: (context) => GetIt.I<NoteBloc>(),
         ),
       ],
       child: MaterialApp(
@@ -50,7 +60,16 @@ class MyApp extends StatelessWidget {
         initialRoute: '/',
         routes: {
           '/': (context) => const HomePage(),
-          '/note/edit': (context) => const NoteEditPage(),
+        },
+        onGenerateRoute: (settings) {
+          if (settings.name == '/note/edit') {
+            // Extract the note ID from the arguments
+            final noteId = settings.arguments as int?;
+            return MaterialPageRoute(
+              builder: (context) => NoteEditPage(noteId: noteId),
+            );
+          }
+          return null;
         },
       ),
     );

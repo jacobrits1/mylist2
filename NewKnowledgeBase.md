@@ -386,4 +386,48 @@ The application uses SQLite for persistent storage with the following tables:
 - Graceful degradation when WhatsApp isn't installed
 - Consistent sharing format across platforms
 - Share position context for proper UI placement
-- State preservation during sharing operations 
+- State preservation during sharing operations
+
+## Note Editing and Autosave Functionality
+### Implementation
+- Created a dedicated NoteBloc for state management:
+  - LoadNote event to load a specific note by ID
+  - CreateNote event for new notes
+  - UpdateNote event for modifying existing notes
+  - DeleteNote event for removing notes
+  
+- Enhanced NoteEditPage with editing capabilities:
+  - Ability to receive a noteId parameter
+  - Auto-loading of note content when editing
+  - Supporting both text and checklist editing
+  - Saving note state automatically when leaving the screen
+  
+- Improved NoteRepository with enhanced functionality:
+  - Loading and persisting checklist items
+  - Transaction support for atomic operations
+  - Handling relations between notes and checklist items
+  
+### Autosave Implementation
+- TextEditingController listeners to detect changes
+- Dirty state tracking to identify modified content
+- Automatic saving when leaving the editing screen
+- WillPopScope integration for handling back navigation
+- State preservation across app lifecycle events
+
+### Navigation Flow
+- Enhanced navigation with route parameters
+  - Using onGenerateRoute for dynamic parameters
+  - Passing note ID between screens
+  - Rebuilding note lists after edits
+  
+- Navigation context preservation
+  - Proper state management during transitions
+  - Loading indicators during data operations
+  - Error handling and feedback
+
+### Best Practices
+- Clean separation of concerns between UI and data logic
+- Reactive programming using BLoC pattern
+- Immutable data models with copyWith methods
+- Optimistic UI updates for improved UX
+- Proper resource cleanup in widget lifecycle methods 

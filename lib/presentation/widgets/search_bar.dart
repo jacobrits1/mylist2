@@ -83,4 +83,67 @@ class _MySearchBarState extends State<MySearchBar> {
       ],
     );
   }
+}
+
+/// A search delegate for searching notes
+class AppSearchDelegate extends SearchDelegate<String> {
+  final Function(String?) onSearchChanged;
+
+  AppSearchDelegate({required this.onSearchChanged});
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: const Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+          onSearchChanged(null);
+        },
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () {
+        close(context, '');
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    onSearchChanged(query);
+    return Container(); // The actual results will be shown in the main page
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    if (query.isNotEmpty) {
+      onSearchChanged(query);
+    }
+    
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Icon(
+          Icons.search,
+          size: 64,
+          color: Colors.grey.withOpacity(0.5),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          query.isEmpty ? 'Enter search term' : 'Searching for "$query"...',
+          style: TextStyle(
+            fontSize: 18,
+            color: Colors.grey.withOpacity(0.8),
+          ),
+        ),
+      ],
+    );
+  }
 } 
