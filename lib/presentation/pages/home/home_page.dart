@@ -16,8 +16,9 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
-  TabController? _tabController;
+class _HomePageState extends State<HomePage> {
+  int _selectedIndex = 0;
+  Category? _selectedCategory;
   List<Category> _categories = [];
 
   @override
@@ -25,21 +26,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     super.initState();
     // Load categories when the page is initialized
     context.read<CategoryBloc>().add(LoadCategories());
-  }
-
-  @override
-  void dispose() {
-    _tabController?.dispose();
-    super.dispose();
-  }
-
-  void _updateTabController(List<Category> categories) {
-    _tabController?.dispose();
-    _tabController = TabController(
-      length: categories.length + 1, // +1 for "All" tab
-      vsync: this,
-    );
-    _categories = categories;
   }
 
   void _showCategoryDialog([Category? category]) async {
@@ -82,12 +68,90 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
+  void _showCategoriesMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.add_circle_outline),
+              title: const Text('Add New Category'),
+              onTap: () {
+                Navigator.pop(context);
+                _showCategoryDialog();
+              },
+            ),
+            const Divider(),
+            Expanded(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: _categories.length,
+                itemBuilder: (context, index) {
+                  final category = _categories[index];
+                  return ListTile(
+                    leading: const Icon(Icons.category),
+                    title: Text(category.name),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit),
+                          onPressed: () {
+                            Navigator.pop(context);
+                            _showCategoryDialog(category);
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete),
+                          onPressed: () {
+                            Navigator.pop(context);
+                            _deleteCategory(category);
+                          },
+                        ),
+                      ],
+                    ),
+                    onTap: () {
+                      setState(() {
+                        _selectedCategory = category;
+                      });
+                      Navigator.pop(context);
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      if (index == 1) {
+        // Show categories menu
+        _showCategoriesMenu(context);
+      } else {
+        _selectedIndex = index;
+        if (index == 0) {
+          _selectedCategory = null;
+        } else if (index == 2) {
+          Navigator.pushNamed(context, '/note/edit');
+        }
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<CategoryBloc, CategoryState>(
       listener: (context, state) {
         if (state is CategoryLoaded) {
-          _updateTabController(state.categories);
+          setState(() {
+            _categories = state.categories;
+          });
         }
       },
       builder: (context, state) {
@@ -103,49 +167,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           );
         }
 
-        if (_tabController == null) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-
         return Scaffold(
           appBar: AppBar(
-            title: const Text('MyList'),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.category),
-                onPressed: () => _showCategoryDialog(),
-                tooltip: 'Add Category',
-              ),
-            ],
-            bottom: TabBar(
-              controller: _tabController,
-              isScrollable: true,
-              tabs: [
-                const Tab(text: 'All'),
-                ..._categories.map((category) {
-                  return Tab(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(category.name),
-                        const SizedBox(width: 4),
-                        InkWell(
-                          onTap: () => _showCategoryDialog(category),
-                          child: const Icon(Icons.edit, size: 16),
-                        ),
-                        const SizedBox(width: 4),
-                        InkWell(
-                          onTap: () => _deleteCategory(category),
-                          child: const Icon(Icons.close, size: 16),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-              ],
-            ),
+            title: Text(_selectedCategory?.name ?? 'All Notes'),
           ),
           body: Column(
             children: [
@@ -158,27 +182,38 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   },
                 ),
               ),
-              // Tab view for different categories
+              // Notes list view for selected category
               Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    const NotesListView(category: null), // All notes
-                    ..._categories.map((category) {
-                      return NotesListView(category: category);
-                    }),
-                  ],
-                ),
+                child: NotesListView(category: _selectedCategory),
               ),
             ],
           ),
-          // FAB for adding new notes
-          floatingActionButton: FloatingActionButton(
+          // Bottom Navigation Bar
+          bottomNavigationBar: NavigationBar(
+            selectedIndex: _selectedIndex,
+            onDestinationSelected: _onItemTapped,
+            destinations: const [
+              NavigationDestination(
+                icon: Icon(Icons.notes),
+                label: 'All Notes',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.category),
+                label: 'Categories',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.add_circle_outline),
+                label: 'Quick Add',
+              ),
+            ],
+          ),
+          // FAB for adding new notes (hidden when on Quick Add tab)
+          floatingActionButton: _selectedIndex != 2 ? FloatingActionButton(
             onPressed: () {
               Navigator.pushNamed(context, '/note/edit');
             },
             child: const Icon(Icons.add),
-          ),
+          ) : null,
         );
       },
     );

@@ -64,6 +64,29 @@ This document tracks new learnings and insights gained during the development of
   - Smooth animations and transitions
   - Error handling and recovery
 
+- BottomNavigationBar Implementation
+  - Material 3 BottomNavigationBar design
+    - Persistent bottom navigation with labeled icons
+    - Quick access to category filters and add functionality
+    - State management for active navigation item
+    - Smooth transitions between navigation states
+    - Accessibility considerations for navigation items
+  
+  - Navigation Features
+    - Quick add functionality for new items
+    - Category filtering through bottom navigation
+    - Visual feedback for active category
+    - Animated icon transitions
+    - Badge support for unread or important items
+    
+  - Best Practices
+    - Proper state persistence during navigation
+    - Handling of deep linking with bottom navigation
+    - Save state handling during category switches
+    - Proper elevation and theme integration
+    - Platform-specific navigation patterns
+    - Keyboard behavior management with bottom navigation
+
 ### Key Dependencies and Features
 - Speech-to-Text Integration
   - Voice dictation capabilities using speech_to_text package
@@ -173,3 +196,83 @@ CREATE TABLE IF NOT EXISTS reminders (
 - User preference management for notifications
 - Permission handling for notifications
 - State management for reminder updates 
+
+## Project Structure
+### Clean Architecture Implementation
+```
+lib/
+├── core/                     # Core functionality and utilities
+│   ├── di/                  # Dependency injection setup
+│   │   └── dependency_injection.dart
+│   ├── themes/             # App theming
+│   │   └── app_theme.dart
+│   └── utils/              # Utility functions and constants
+│
+├── data/                    # Data layer
+│   ├── models/             # Data models
+│   │   ├── category.dart
+│   │   ├── checklist_item.dart
+│   │   └── reminder_model.dart
+│   ├── repositories/       # Repository implementations
+│   │   ├── category_repository.dart
+│   │   └── reminder_repository.dart
+│   └── sources/           # Data sources
+│       └── local/        # Local database
+│           └── database_helper.dart
+│
+├── presentation/           # Presentation layer
+│   ├── blocs/             # BLoC state management
+│   │   ├── category/     # Category-related blocs
+│   │   │   ├── category_bloc.dart
+│   │   │   ├── category_event.dart
+│   │   │   └── category_state.dart
+│   │   └── reminder/     # Reminder-related blocs
+│   │       ├── reminder_bloc.dart
+│   │       ├── reminder_event.dart
+│   │       └── reminder_state.dart
+│   ├── pages/            # Screen implementations
+│   │   ├── home/        # Home screen
+│   │   │   └── home_page.dart
+│   │   └── note/        # Note editing screen
+│   │       └── note_edit_page.dart
+│   └── widgets/          # Reusable widgets
+│       ├── reminder_dialog.dart
+│       └── reminder_list.dart
+│
+├── services/              # Service implementations
+│   └── notification_service.dart
+│
+└── main.dart             # Application entry point
+```
+
+### Key Architectural Components
+1. **Core Layer**
+   - Dependency injection setup using Get_it
+   - Theme configuration with Material 3
+   - Common utilities and constants
+
+2. **Data Layer**
+   - Models representing data structures
+   - Repositories for data operations
+   - Local database implementation with SQLite
+
+3. **Presentation Layer**
+   - BLoC pattern for state management
+   - Screen implementations
+   - Reusable widgets
+   - Material 3 design components
+
+4. **Services Layer**
+   - Platform-specific service implementations
+   - Background processing
+   - External integrations
+
+### Best Practices
+- Clear separation of concerns
+- Dependency injection for loose coupling
+- Repository pattern for data abstraction
+- BLoC pattern for state management
+- Single responsibility principle
+- Clean and maintainable folder structure
+- Modular component design
+- Consistent naming conventions 
