@@ -2,6 +2,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:mylist2/data/models/category.dart';
 import 'package:mylist2/data/models/checklist_item.dart';
+import 'package:mylist2/data/repositories/reminder_repository.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -48,6 +49,7 @@ class DatabaseHelper {
         note_type TEXT NOT NULL DEFAULT 'text',
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
+        due_date TEXT,
         FOREIGN KEY (category_id) REFERENCES categories (id)
           ON DELETE SET NULL
       )
@@ -67,6 +69,9 @@ class DatabaseHelper {
           ON DELETE CASCADE
       )
     ''');
+
+    // Create reminders table
+    await ReminderRepository.createTable(db);
 
     // Insert default categories
     await db.insert('categories', Category(

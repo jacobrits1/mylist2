@@ -99,3 +99,77 @@ This document tracks new learnings and insights gained during the development of
 - Use const constructors only when all values are known at compile time
 - For models with runtime values, use regular constructors
 - Immutability can still be achieved without const by using final fields 
+
+## Reminder Feature Implementation
+### Database Structure
+The reminder feature uses SQLite for persistent storage with the following schema:
+```sql
+CREATE TABLE IF NOT EXISTS reminders (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  noteId INTEGER NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT,
+  reminderTime TEXT NOT NULL,
+  isCompleted INTEGER DEFAULT 0,
+  FOREIGN KEY (noteId) REFERENCES notes(id) ON DELETE CASCADE
+)
+```
+
+### Key Components
+1. **NotificationService**
+   - Handles local notifications using flutter_local_notifications
+   - Manages notification permissions for Android and iOS
+   - Schedules notifications based on reminder times
+   - Handles notification tap actions
+
+2. **ReminderRepository**
+   - Manages CRUD operations for reminders in SQLite
+   - Provides methods for querying and filtering reminders
+   - Handles cascade deletion with notes
+
+3. **ReminderModel**
+   - Represents reminder data structure
+   - Handles data conversion between app and database
+   - Implements proper equality and hash code
+
+### Best Practices
+- Use proper dependency injection for services
+- Implement proper error handling
+- Follow clean architecture principles
+- Use BLoC pattern for state management
+- Handle platform-specific notification requirements
+
+### Integration Points
+- Note editing screen for setting reminders
+- Reminder list view for managing reminders
+- Notification handling for reminder alerts
+
+### Local Notifications for Reminders
+- Integration with flutter_local_notifications package
+- Platform-specific notification channels setup
+- Notification scheduling and management:
+  - One-time reminders
+  - Recurring reminders
+  - Reminder modification and cancellation
+- Background notification handling
+- Deep linking from notifications to specific notes
+- Custom notification sounds and vibration patterns
+
+### Reminder UI/UX Implementation
+- DateTime picker for setting reminder time
+- Reminder status indicators in note list
+- Reminder management interface:
+  - Create/Edit reminder modal
+  - Reminder list view
+  - Quick actions (snooze, dismiss, mark complete)
+- Visual and auditory feedback for reminder actions
+- Accessibility considerations for reminder interfaces
+
+### Best Practices
+- Proper timezone handling for reminders
+- Battery optimization considerations
+- Data backup and restoration
+- Error handling and recovery
+- User preference management for notifications
+- Permission handling for notifications
+- State management for reminder updates 

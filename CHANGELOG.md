@@ -47,6 +47,15 @@ All notable changes to this project will be documented in this file.
   - Position tracking for reordering
   - Swipe-to-delete functionality
   - Proper cursor position management
+- Reminder feature for notes
+  - SQLite integration for storing reminders
+  - Local notifications for reminder alerts
+  - UI components for managing reminders
+  - Ability to create, edit, and delete reminders
+  - Mark reminders as completed
+  - Swipe-to-delete functionality for reminders
+  - DateTime picker for setting reminder times
+  - Visual feedback for reminder status
 
 ### Enhanced
 - Improved speech recognition:
@@ -67,6 +76,20 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Updated speech_to_text package to version ^7.0.0 for compatibility with Flutter 3.29.2
 - Fixed ChecklistItem constructor to properly handle runtime DateTime values
+- Fixed dependency injection setup for reminder feature
+- Corrected NotificationService implementation with proper permission handling
+- Updated ReminderRepository with proper database operations
+- Fixed ReminderModel implementation with proper data conversion
+- Improved error handling in reminder-related components
+- Fixed ReminderBloc to use correct method names
+- Added proper null safety handling in NotificationService
+- Corrected reminder creation and notification scheduling flow
+- Fixed notification scheduling by removing deprecated parameter
 
 ### Removed
 - Removed unused code and dependencies 
+
+### Changed
+- Optimized reminder database schema
+- Enhanced notification scheduling system
+- Improved reminder state management 

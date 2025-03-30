@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:mylist2/data/repositories/category_repository.dart';
-import 'package:mylist2/data/sources/local/database_helper.dart';
-import 'package:mylist2/presentation/blocs/category/category_bloc.dart';
-import 'package:mylist2/presentation/blocs/category/category_event.dart';
 import 'package:mylist2/presentation/pages/home/home_page.dart';
 import 'package:mylist2/presentation/pages/note/note_edit_page.dart';
 import 'package:mylist2/core/themes/app_theme.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mylist2/core/di/dependency_injection.dart';
+import 'package:mylist2/presentation/blocs/category/category_bloc.dart';
+import 'package:mylist2/presentation/blocs/category/category_event.dart';
+import 'package:mylist2/presentation/bloc/reminder_bloc.dart';
 
 void main() async {
   // Ensure Flutter bindings are initialized
@@ -29,6 +29,9 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(
           create: (context) => GetIt.I<CategoryBloc>()..add(LoadCategories()),
+        ),
+        BlocProvider(
+          create: (context) => GetIt.I<ReminderBloc>(),
         ),
       ],
       child: MaterialApp(
@@ -52,21 +55,4 @@ class MyApp extends StatelessWidget {
       ),
     );
   }
-}
-
-Future<void> setupDependencies() async {
-  final getIt = GetIt.instance;
-  
-  // Register database helper
-  getIt.registerLazySingleton(() => DatabaseHelper());
-  
-  // Register repositories
-  getIt.registerLazySingleton(() => CategoryRepository(
-    databaseHelper: getIt<DatabaseHelper>(),
-  ));
-  
-  // Register blocs
-  getIt.registerFactory(() => CategoryBloc(
-    categoryRepository: getIt<CategoryRepository>(),
-  ));
 }

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:mylist2/data/models/checklist_item.dart';
+import '../../bloc/reminder_bloc.dart';
+import '../../../data/models/reminder_model.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class NoteEditPage extends StatefulWidget {
   const NoteEditPage({super.key});
@@ -23,6 +27,7 @@ class _NoteEditPageState extends State<NoteEditPage> {
   double _confidence = 0.0;
   TextSelection? _lastSelection;
   bool _isVoiceCommand = false;
+  DateTime? _dueDate;
 
   final List<String> _categories = ['Personal', 'Work', 'Shopping', 'Ideas'];
   final List<String> _voiceCommands = [
@@ -306,6 +311,46 @@ class _NoteEditPageState extends State<NoteEditPage> {
     return true;
   }
 
+  Future<void> _selectDueDate() async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate: _dueDate ?? DateTime.now().add(const Duration(days: 1)),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+
+    if (date != null) {
+      final time = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.fromDateTime(_dueDate ?? DateTime.now().add(const Duration(hours: 1))),
+      );
+
+      if (time != null) {
+        setState(() {
+          _dueDate = DateTime(
+            date.year,
+            date.month,
+            date.day,
+            time.hour,
+            time.minute,
+          );
+        });
+
+        // Create or update reminder when due date is set
+        if (_dueDate != null) {
+          BlocProvider.of<ReminderBloc>(context).add(AddReminder(
+            ReminderModel(
+              noteId: 1, // TODO: Replace with actual note ID
+              title: _titleController.text.isNotEmpty ? _titleController.text : 'Untitled Note',
+              description: _contentController.text.isNotEmpty ? _contentController.text : 'No description',
+              reminderTime: _dueDate!,
+            ),
+          ));
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -437,6 +482,32 @@ class _NoteEditPageState extends State<NoteEditPage> {
                   labelText: 'Title',
                   border: OutlineInputBorder(),
                 ),
+              ),
+              const SizedBox(height: 16),
+
+              // Due date field
+              ListTile(
+                title: const Text('Due Date'),
+                subtitle: Text(
+                  _dueDate != null
+                      ? '${_dueDate!.toLocal()}'.split('.')[0]
+                      : 'No due date set',
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (_dueDate != null)
+                      IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () => setState(() => _dueDate = null),
+                      ),
+                    IconButton(
+                      icon: const Icon(Icons.calendar_today),
+                      onPressed: _selectDueDate,
+                    ),
+                  ],
+                ),
+                onTap: _selectDueDate,
               ),
               const SizedBox(height: 16),
 
